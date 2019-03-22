@@ -7,6 +7,18 @@
 # LICENSE file in the root directory of this source tree.
 #
 
-# Base namespace stub.
-module Hashematics
-end
+require 'digest'
+require 'forwardable'
+require 'ostruct'
+
+require_relative 'category'
+require_relative 'configuration'
+require_relative 'dictionary'
+require_relative 'group'
+require_relative 'key'
+require_relative 'mapper'
+require_relative 'object_interface'
+require_relative 'record'
+require_relative 'record_set'
+require_relative 'record_visitor'
+require_relative 'type'
