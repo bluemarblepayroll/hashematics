@@ -21,7 +21,7 @@ module Hashematics
 
     attr_reader :name, :object_class, :properties
 
-    def initialize(name: '', properties: {}, object_class: nil)
+    def initialize(name: '', properties: nil, object_class: nil)
       @name         = name
       @properties   = make_properties(properties)
       @object_class = object_class || 'hash'
@@ -29,16 +29,24 @@ module Hashematics
       freeze
     end
 
-    def convert(record, child_hash = {})
-      make_object(to_hash(record).merge(child_hash))
+    def convert(object, child_hash = {})
+      make_object(to_hash(object).merge(child_hash))
     end
 
     private
 
-    def to_hash(record)
-      (properties || make_properties(record.keys)).map do |object_key, record_key|
-        [object_key, record[record_key]]
+    def to_hash(object)
+      (properties || default_properties(object)).map do |property, key|
+        [property, ObjectInterface.get(object, key)]
       end.to_h
+    end
+
+    def default_properties(object)
+      if object.respond_to?(:keys)
+        make_properties(object.keys)
+      else
+        []
+      end
     end
 
     def make_object(hash)

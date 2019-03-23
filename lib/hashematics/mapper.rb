@@ -53,8 +53,6 @@ module Hashematics
       group_dictionary.each do |group|
         group.add(record)
       end
-
-      self
     end
   end
 end

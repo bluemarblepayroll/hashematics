@@ -29,7 +29,7 @@ module Hashematics
     def data(include_children = false)
       child_hash = include_children ? make_child_hash : {}
 
-      type.convert(record, child_hash)
+      type.convert(record.data, child_hash)
     end
 
     def visit(name)
