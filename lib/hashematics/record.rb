@@ -11,6 +11,8 @@ module Hashematics
   # A Record object is composed of an inner object (most likely a hash) and provides extra
   # methods for the library.
   class Record
+    extend Forwardable
+
     class << self
       def digest(val = '')
         Digest::MD5.hexdigest(val)
@@ -20,6 +22,8 @@ module Hashematics
     SEPARATOR = '::'
 
     private_constant :SEPARATOR
+
+    def_delegators :data, :keys, :hash
 
     attr_reader :data
 
@@ -35,10 +39,6 @@ module Hashematics
       @ids_by_key[key] ||= self.class.digest(make_undigested_id(key))
     end
 
-    def keys
-      data.keys
-    end
-
     def [](key)
       ObjectInterface.get(data, key)
     end
@@ -49,10 +49,6 @@ module Hashematics
 
     def ==(other)
       eql?(other)
-    end
-
-    def hash
-      data.hash
     end
 
     private

@@ -23,40 +23,32 @@ module Hashematics
       freeze
     end
 
-    def group(name)
-      group_dictionary.get(name)
-    end
-
-    def group_names
-      group_dictionary.map(&:name)
-    end
-
-    def records(group_name = nil)
-      return record_set.records unless group_name
-
-      group(group_name)&.records || []
-    end
-
-    def objects(group_name = nil)
-      return record_set.objects unless group_name
-
-      group(group_name)&.objects || []
-    end
-
-    def add(hash_or_enumerable)
-      if hash_or_enumerable.is_a?(Hash)
-        add_one(hash_or_enumerable)
-      else
-        hash_or_enumerable.each { |hash| add_one(hash) }
-      end
+    def add(enumerable)
+      enumerable.each { |object| add_one(object) }
 
       self
     end
 
+    def children
+      group_dictionary.map(&:name)
+    end
+
+    def visit(name)
+      group(name)&.visit || []
+    end
+
+    def data(name)
+      visit(name).map { |v| v.data(true) }
+    end
+
     private
 
-    def add_one(hash)
-      record = record_set.add(hash)
+    def group(name)
+      group_dictionary.get(name)
+    end
+
+    def add_one(object)
+      record = record_set.add(object)
 
       group_dictionary.each do |group|
         group.add(record)

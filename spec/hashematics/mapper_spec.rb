@@ -18,12 +18,26 @@ describe ::Hashematics::Mapper do
 
   let(:groups) { ::Hashematics::Configuration.new(configuration).groups }
 
-  describe '#objects' do
+  describe '#children' do
+    it 'returns list of child group names' do
+      mapper = ::Hashematics::Mapper.new(groups).add(csv_rows)
+
+      actual_children = mapper.children
+
+      expected_children = groups.map(&:name)
+
+      expect(actual_children).to eq(expected_children)
+    end
+  end
+
+  describe '#data' do
     context 'with no object_class specifications' do
       it 'should parse configuration and return object graph' do
         mapper = ::Hashematics::Mapper.new(groups).add(csv_rows)
 
-        actual_people = mapper.objects('people')
+        actual_people = mapper.data('people')
+
+        # binding.pry
 
         expect(actual_people).to eq(people)
       end
@@ -47,7 +61,7 @@ describe ::Hashematics::Mapper do
       it 'should parse configuration and return object graph' do
         mapper = ::Hashematics::Mapper.new(modified_groups).add(csv_rows)
 
-        actual_people = mapper.objects('people')
+        actual_people = mapper.data(:people)
 
         expect(actual_people).to eq(modified_people)
       end

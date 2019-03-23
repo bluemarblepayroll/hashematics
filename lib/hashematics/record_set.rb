@@ -18,16 +18,8 @@ module Hashematics
       freeze
     end
 
-    def add(hash)
-      record = Record.new(hash)
-
-      records << record
-
-      record
-    end
-
-    def objects
-      records.map(&:data)
+    def add(object)
+      Record.new(object).tap { |r| records << r }
     end
   end
 end

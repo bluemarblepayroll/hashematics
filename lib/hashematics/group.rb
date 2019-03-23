@@ -32,35 +32,26 @@ module Hashematics
       self
     end
 
-    def child_group_names
+    def children
       child_dictionary.map(&:name)
     end
 
-    def child_group(group_name)
-      child_dictionary.get(group_name)
-    end
-
-    def records(group_name: nil, parent_record: nil)
-      group = group_name ? child_group(group_name) : self
-
-      grouped_records =
-        if group_name
-          child_group(group_name)&.records(parent_record: parent_record) || []
-        else
-          category.records(parent_record)
-        end
-
-      grouped_records.map do |grouped_record|
-        RecordVisitor.new(grouped_record, group)
+    def visit(parent_record = nil)
+      category.records(parent_record).map do |record|
+        Visitor.new(group: self, record: record)
       end
     end
 
-    def objects(group_name: nil, parent_record: nil)
-      records(group_name: group_name, parent_record: parent_record).map(&:object)
+    def visit_children(name, parent_record = nil)
+      child_group(name)&.visit(parent_record) || []
     end
 
     private
 
     attr_reader :child_dictionary
+
+    def child_group(group_name)
+      child_dictionary.get(group_name)
+    end
   end
 end
