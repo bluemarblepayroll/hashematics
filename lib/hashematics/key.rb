@@ -11,9 +11,20 @@ module Hashematics
   # A Key is a unique identifier and can be used for hash keys, comparison, etc.
   # Essentially it is a joined and hashed list of strings.
   class Key
+    extend Forwardable
+
     class << self
-      def make(arg)
-        arg.is_a?(self) ? arg : new(arg)
+      def get(parts = [])
+        return parts if parts.is_a?(self)
+
+        keys[parts] ||= new(parts)
+      end
+      alias default get
+
+      private
+
+      def keys
+        @keys ||= {}
       end
     end
 
@@ -21,17 +32,15 @@ module Hashematics
 
     private_constant :SEPARATOR
 
+    def_delegators :parts, :each_with_object, :map
+
     attr_reader :parts, :value
 
     def initialize(parts = [])
       @parts = Array(parts)
-      @value = @parts.map(&:to_s).join(SEPARATOR)
+      @value = make_value
 
       freeze
-    end
-
-    def map(&block)
-      parts.map(&block)
     end
 
     def to_s
@@ -47,7 +56,13 @@ module Hashematics
     end
 
     def hash
-      to_s.hash
+      value.hash
+    end
+
+    private
+
+    def make_value
+      parts.map(&:to_s).join(SEPARATOR)
     end
   end
 end

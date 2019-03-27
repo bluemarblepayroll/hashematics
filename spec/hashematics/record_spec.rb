@@ -13,21 +13,6 @@ describe ::Hashematics::Record do
   let(:csv_rows) { csv_fixture('data.csv') }
 
   describe '#category_id' do
-    it 'memoizes computed ids' do
-      record = ::Hashematics::Record.new(name: 'Matt')
-      ids_by_key_var = record.instance_variable_get('@ids_by_key')
-
-      expect(ids_by_key_var.keys).to eq([])
-      record.id(:name)
-      expect(ids_by_key_var.keys).to eq(['name'])
-
-      key = ::Hashematics::Key.new('name')
-      ids_by_key_var[key] = 'SOMETHING'
-      expect(record.id('name')).to eq('SOMETHING')
-      expect(ids_by_key_var.keys).to eq(['name'])
-      expect(ids_by_key_var.values).to eq(['SOMETHING'])
-    end
-
     it 'returns correct ID for specified keys' do
       records = csv_rows.map { |row| ::Hashematics::Record.new(row) }
 
@@ -40,7 +25,7 @@ describe ::Hashematics::Record do
       keys.each do |key|
         records.each do |record|
           concat_only = key.map { |p| "#{p}::#{record[p]}" }.join('::')
-          expected_id = ::Hashematics::Record.digest(concat_only)
+          expected_id = ::Hashematics::Id.digest(concat_only)
 
           actual_id = record.id(key)
 

@@ -8,6 +8,20 @@ require 'hashematics'
 require 'pry'
 require 'benchmark'
 
+def read(name)
+  File.open(name, 'r:bom|utf-8')
+end
+
+# rubocop:disable Security/YAMLLoad
+def yaml_read(name)
+  YAML.load(read(name))
+end
+# rubocop:enable Security/YAMLLoad
+
+def csv_read(name)
+  CSV.new(read(name), headers: true).map(&:to_h)
+end
+
 def make_people_rows(num)
   (1..num).map do |i|
     [
@@ -105,19 +119,16 @@ if always_generate || !File.exist?(file_name)
   puts 'Benchmark file generated.'
 end
 
-puts 'Loading Prerequisites'
+puts 'Loading prerequisites'
+configuration = yaml_read(config_file_name)
+groups = ::Hashematics::Configuration.new(configuration).groups
+mapper = ::Hashematics::Mapper.new(groups)
 
-# rubocop:disable Security/YAMLLoad
-configuration = YAML.load(File.open(config_file_name, 'r:bom|utf-8'))
-# rubocop:enable Security/YAMLLoad
+puts 'Loading data'
+rows = csv_read(file_name)
 
-groups        = ::Hashematics::Configuration.new(configuration).groups
-rows          = CSV.new(File.open(file_name, 'r:bom|utf-8'), headers: true).map(&:to_h)
-mapper        = ::Hashematics::Mapper.new(groups)
-
-puts 'Executing Benchmark'
-
+puts "Executing benchmark for #{rows.length} rows"
 Benchmark.bm do |x|
-  x.report('ADD') { mapper.add(rows) }
-  x.report('DATA') { mapper.data('people') }
+  x.report('ADD')   { mapper.add(rows) }
+  x.report('DATA')  { mapper.data('people') }
 end

@@ -13,30 +13,18 @@ module Hashematics
   class Record
     extend Forwardable
 
-    class << self
-      def digest(val = '')
-        Digest::MD5.hexdigest(val)
-      end
-    end
-
-    SEPARATOR = '::'
-
-    private_constant :SEPARATOR
-
     def_delegators :data, :keys, :hash
 
     attr_reader :data
 
     def initialize(data = {})
-      @data       = data
-      @ids_by_key = {}
+      @data = data
 
       freeze
     end
 
     def id(key)
-      key = Key.make(key)
-      @ids_by_key[key] ||= self.class.digest(make_undigested_id(key))
+      Id.get(id_parts(key))
     end
 
     def [](key)
@@ -53,10 +41,11 @@ module Hashematics
 
     private
 
-    attr_reader :group_ids
-
-    def make_undigested_id(key)
-      key.map { |p| "#{p}#{SEPARATOR}#{data[p]}" }.join(SEPARATOR)
+    def id_parts(key)
+      Key.get(key).each_with_object([]) do |p, arr|
+        arr << p
+        arr << data[p]
+      end
     end
   end
 end

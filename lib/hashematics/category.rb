@@ -15,10 +15,10 @@ module Hashematics
     attr_reader :id_key, :parent_key
 
     def initialize(parent_key: nil, id_key: nil)
-      @parent_key         = Key.make(parent_key)
-      @id_key             = Key.make(id_key)
+      @parent_key         = Key.get(parent_key)
+      @id_key             = Key.get(id_key)
       @lookup             = {}
-      @default_parent_id  = Record.digest
+      @default_parent_id  = Id.default
 
       freeze
     end
