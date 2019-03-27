@@ -43,10 +43,6 @@ module Hashematics
       freeze
     end
 
-    def to_s
-      value
-    end
-
     def eql?(other)
       value == other.is_a?(self.class) ? other.value : self.class.new(other).value
     end
