@@ -23,3 +23,14 @@ require_relative 'record'
 require_relative 'record_set'
 require_relative 'type'
 require_relative 'visitor'
+
+# Top-level API syntactic sugar that holds the common library use(s).
+module Hashematics
+  class << self
+    def mapper(config: {}, rows: [])
+      groups = ::Hashematics::Configuration.new(config).groups
+
+      ::Hashematics::Mapper.new(groups).add(rows)
+    end
+  end
+end

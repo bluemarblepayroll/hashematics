@@ -67,4 +67,315 @@ describe ::Hashematics::Mapper do
       end
     end
   end
+
+  describe 'README examples' do
+    specify 'Getting Started should work' do
+      rows = [
+        {
+          id: 1,
+          first: 'Bruce',
+          last: 'Banner'
+        },
+        {
+          id: 2,
+          first: 'Tony',
+          last: 'Stark'
+        }
+      ]
+
+      mapper  = ::Hashematics.mapper(rows: rows)
+      objects = mapper.rows
+
+      expect(objects).to eq(rows)
+    end
+
+    specify 'Introduction to Shaping should work' do
+      config = {
+        types: {
+          person: {
+            properties: %i[id first]
+          }
+        },
+        groups: {
+          avengers: {
+            by: :id,
+            type: :person
+          }
+        }
+      }
+
+      rows = [
+        {
+          id: 1,
+          first: 'Bruce',
+          last: 'Banner'
+        },
+        {
+          id: 2,
+          first: 'Tony',
+          last: 'Stark'
+        }
+      ]
+
+      mapper  = ::Hashematics.mapper(config: config, rows: rows)
+      objects = mapper.data(:avengers)
+
+      expected = [
+        {
+          id: 1,
+          first: 'Bruce'
+        },
+        {
+          id: 2,
+          first: 'Tony'
+        }
+      ]
+
+      expect(objects).to eq(expected)
+    end
+
+    specify 'Cross-Mapping Shape Attribute Names should work' do
+      config = {
+        types: {
+          person: {
+            properties: {
+              id_number: :id,
+              first_name: :first
+            }
+          }
+        },
+        groups: {
+          avengers: {
+            by: :id,
+            type: :person
+          }
+        }
+      }
+
+      rows = [
+        {
+          id: 1,
+          first: 'Bruce',
+          last: 'Banner'
+        },
+        {
+          id: 2,
+          first: 'Tony',
+          last: 'Stark'
+        }
+      ]
+
+      mapper  = ::Hashematics.mapper(config: config, rows: rows)
+      objects = mapper.data(:avengers)
+
+      expected = [
+        {
+          id_number: 1,
+          first_name: 'Bruce'
+        },
+        {
+          id_number: 2,
+          first_name: 'Tony'
+        }
+      ]
+
+      expect(objects).to eq(expected)
+    end
+
+    specify 'Nested Shaping should work' do
+      config = {
+        types: {
+          person: {
+            properties: {
+              id: 'ID #',
+              first: 'First Name',
+              last: 'Last Name'
+            }
+          },
+          costume: {
+            properties: {
+              id: 'Costume ID #',
+              name: 'Costume Name',
+              color: 'Costume Color'
+            }
+          }
+        },
+        groups: {
+          avengers: {
+            by: 'ID #',
+            type: :person,
+            groups: {
+              costumes: {
+                by: 'Costume ID #',
+                type: :costume
+              }
+            }
+          }
+        }
+      }
+
+      rows = [
+        {
+          'ID #' => 1,
+          'First Name' => 'Bruce',
+          'Last Name' => 'Banner',
+          'Costume ID #' => 3,
+          'Costume Name' => 'Basic Hulk',
+          'Costume Color' => 'Green'
+        },
+        {
+          'ID #' => 1,
+          'First Name' => 'Bruce',
+          'Last Name' => 'Banner',
+          'Costume ID #' => 4,
+          'Costume Name' => 'Mad Hulk',
+          'Costume Color' => 'Red'
+        },
+        {
+          'ID #' => 2,
+          'First Name' => 'Tony',
+          'Last Name' => 'Stark',
+          'Costume ID #' => 5,
+          'Costume Name' => 'Mark I',
+          'Costume Color' => 'Gray'
+        },
+        {
+          'ID #' => 2,
+          'First Name' => 'Tony',
+          'Last Name' => 'Stark',
+          'Costume ID #' => 6,
+          'Costume Name' => 'Mark IV',
+          'Costume Color' => 'Red'
+        },
+        {
+          'ID #' => 2,
+          'First Name' => 'Tony',
+          'Last Name' => 'Stark',
+          'Costume ID #' => 7,
+          'Costume Name' => 'Mark VI',
+          'Costume Color' => 'Nano-Blue'
+        }
+      ]
+
+      mapper  = ::Hashematics.mapper(config: config, rows: rows)
+      objects = mapper.data(:avengers)
+
+      expected = [
+        {
+          id: 1,
+          first: 'Bruce',
+          last: 'Banner',
+          costumes: [
+            { id: 3, name: 'Basic Hulk', color: 'Green' },
+            { id: 4, name: 'Mad Hulk', color: 'Red' }
+          ]
+        },
+        {
+          id: 2,
+          first: 'Tony',
+          last: 'Stark',
+          costumes: [
+            { id: 5, name: 'Mark I', color: 'Gray' },
+            { id: 6, name: 'Mark IV', color: 'Red' },
+            { id: 7, name: 'Mark VI', color: 'Nano-Blue' }
+          ]
+        }
+      ]
+
+      expect(objects).to eq(expected)
+    end
+
+    specify 'Multiple Top-Level Graphs should work' do
+      config = {
+        types: {
+          person: {
+            properties: {
+              id: 'ID #',
+              first: 'First Name',
+              last: 'Last Name'
+            }
+          },
+          costume: {
+            properties: {
+              id: 'Costume ID #',
+              name: 'Costume Name',
+              color: 'Costume Color'
+            }
+          }
+        },
+        groups: {
+          avengers: {
+            by: 'ID #',
+            type: :person,
+            groups: {
+              costumes: {
+                by: 'Costume ID #',
+                type: :costume
+              }
+            }
+          },
+          costumes: {
+            by: 'Costume ID #',
+            type: :costume
+          }
+        }
+      }
+
+      rows = [
+        {
+          'ID #' => 1,
+          'First Name' => 'Bruce',
+          'Last Name' => 'Banner',
+          'Costume ID #' => 3,
+          'Costume Name' => 'Basic Hulk',
+          'Costume Color' => 'Green'
+        },
+        {
+          'ID #' => 1,
+          'First Name' => 'Bruce',
+          'Last Name' => 'Banner',
+          'Costume ID #' => 4,
+          'Costume Name' => 'Mad Hulk',
+          'Costume Color' => 'Red'
+        },
+        {
+          'ID #' => 2,
+          'First Name' => 'Tony',
+          'Last Name' => 'Stark',
+          'Costume ID #' => 5,
+          'Costume Name' => 'Mark I',
+          'Costume Color' => 'Gray'
+        },
+        {
+          'ID #' => 2,
+          'First Name' => 'Tony',
+          'Last Name' => 'Stark',
+          'Costume ID #' => 6,
+          'Costume Name' => 'Mark IV',
+          'Costume Color' => 'Red'
+        },
+        {
+          'ID #' => 2,
+          'First Name' => 'Tony',
+          'Last Name' => 'Stark',
+          'Costume ID #' => 7,
+          'Costume Name' => 'Mark VI',
+          'Costume Color' => 'Nano-Blue'
+        }
+      ]
+
+      mapper  = ::Hashematics.mapper(config: config, rows: rows)
+      objects = mapper.data(:costumes)
+
+      expected = [
+        { id: 3, name: 'Basic Hulk', color: 'Green' },
+        { id: 4, name: 'Mad Hulk', color: 'Red' },
+        { id: 5, name: 'Mark I', color: 'Gray' },
+        { id: 6, name: 'Mark IV', color: 'Red' },
+        { id: 7, name: 'Mark VI', color: 'Nano-Blue' }
+      ]
+
+      expect(objects).to eq(expected)
+    end
+  end
 end

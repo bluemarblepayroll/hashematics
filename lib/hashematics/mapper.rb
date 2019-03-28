@@ -14,7 +14,11 @@ module Hashematics
   # 2. Feed in objects into the mapper using the #add method
   # 3. Use the #groups, #records, and #objects methods to interact with the generated object graph.
   class Mapper
+    extend Forwardable
+
     attr_reader :group_dictionary, :record_set
+
+    def_delegators :record_set, :rows
 
     def initialize(groups = [])
       @group_dictionary = Dictionary.new.add(groups, &:name)

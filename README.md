@@ -2,7 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/hashematics.svg)](https://badge.fury.io/rb/hashematics) [![Build Status](https://travis-ci.org/bluemarblepayroll/hashematics.svg?branch=master)](https://travis-ci.org/bluemarblepayroll/hashematics) [![Maintainability](https://api.codeclimate.com/v1/badges/a171325c301e58eb4fb0/maintainability)](https://codeclimate.com/github/bluemarblepayroll/hashematics/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/a171325c301e58eb4fb0/test_coverage)](https://codeclimate.com/github/bluemarblepayroll/hashematics/test_coverage) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
--- Under Construction. --
+Hashematics is a configuration-based object graphing tool which can turn a flat, single dimensional dataset into a structure of deeply nested objects.
 
 ## Installation
 
@@ -20,7 +20,371 @@ bundle add hashematics
 
 ## Examples
 
--- Under Construction. --
+### Getting Started
+
+Take the following simple, non-nested data set:
+
+id | first | last
+-- | ----- | ------
+1  | Bruce | Banner
+2  | Tony  | Stark
+
+We could read this in using the following configuration:
+
+```ruby
+rows = [
+  {
+    id: 1,
+    first: 'Bruce',
+    last: 'Banner'
+  },
+  {
+    id: 2,
+    first: 'Tony',
+    last: 'Stark'
+  }
+]
+
+mapper  = ::Hashematics.mapper(rows: rows)
+objects = mapper.rows
+```
+
+The variable `objects` will now contain the same data as `rows`.  This, so far, is not very useful but it sets up base case.
+
+### Introduction to Simple Shaping
+
+Let's say that we only want id and first variables:
+
+```ruby
+config = {
+  types: {
+    person: {
+      properties: %i[id first]
+    }
+  },
+  groups: {
+    avengers: {
+      by: :id,
+      type: :person
+    }
+  }
+}
+
+rows = [
+  {
+    id: 1,
+    first: 'Bruce',
+    last: 'Banner'
+  },
+  {
+    id: 2,
+    first: 'Tony',
+    last: 'Stark'
+  }
+]
+
+mapper  = ::Hashematics.mapper(config: config, rows: rows)
+objects = mapper.data(:avengers)
+```
+
+Notice how we are grouping the data and calling the #data API.  Now the `objects` variable should now look like:
+
+```ruby
+[
+  {
+    id: 1,
+    first: 'Bruce'
+  },
+  {
+    id: 2,
+    first: 'Tony'
+  }
+]
+```
+
+### Cross-Mapping Shape Attribute Names
+
+Say we wanted to change the attribute names:
+
+```ruby
+config = {
+  types: {
+    person: {
+      properties: {
+        id_number: :id,
+        first_name: :first
+      }
+    }
+  },
+  groups: {
+    avengers: {
+      by: :id,
+      type: :person
+    }
+  }
+}
+
+rows = [
+  {
+    id: 1,
+    first: 'Bruce',
+    last: 'Banner'
+  },
+  {
+    id: 2,
+    first: 'Tony',
+    last: 'Stark'
+  }
+]
+
+mapper  = ::Hashematics.mapper(config: config, rows: rows)
+objects = mapper.data(:avengers)
+```
+
+The `objects` variable should now look like:
+
+```ruby
+[
+  {
+    id_number: 1,
+    first_name: 'Bruce'
+  },
+  {
+    id_number: 2,
+    first_name: 'Tony'
+  }
+]
+```
+
+### Nested Shaping
+
+Let's build on our initial data set to:
+
+* include child data (one-to-many) relationship
+* start with different attributes (cross map attribute names)
+
+ID # | First Name | Last Name | Costume ID # | Costume Name | Costume Color
+---- | ---------- | --------- | ------------ | ------------ | -------------
+1    | Bruce      | Banner    | 3            | Basic Hulk   | Green
+1    | Bruce      | Banner    | 4            | Mad Hulk     | Red
+2    | Tony       | Stark     | 5            | Mark I       | Gray
+2    | Tony       | Stark     | 6            | Mark IV      | Red
+2    | Tony       | Stark     | 7            | Mark VI      | Nano-Blue
+
+We could now read this in as:
+
+```ruby
+config = {
+  types: {
+    person: {
+      properties: {
+        id: 'ID #',
+        first: 'First Name',
+        last: 'Last Name'
+      }
+    },
+    costume: {
+      properties: {
+        id: 'Costume ID #',
+        name: 'Costume Name',
+        color: 'Costume Color'
+      }
+    }
+  },
+  groups: {
+    avengers: {
+      by: 'ID #',
+      type: :person,
+      groups: {
+        costumes: {
+          by: 'Costume ID #',
+          type: :costume
+        }
+      }
+    }
+  }
+}
+
+rows = [
+  {
+    'ID #' => 1,
+    'First Name' => 'Bruce',
+    'Last Name' => 'Banner',
+    'Costume ID #' => 3,
+    'Costume Name' => 'Basic Hulk',
+    'Costume Color' => 'Green'
+  },
+  {
+    'ID #' => 1,
+    'First Name' => 'Bruce',
+    'Last Name' => 'Banner',
+    'Costume ID #' => 4,
+    'Costume Name' => 'Mad Hulk',
+    'Costume Color' => 'Red'
+  },
+  {
+    'ID #' => 2,
+    'First Name' => 'Tony',
+    'Last Name' => 'Stark',
+    'Costume ID #' => 5,
+    'Costume Name' => 'Mark I',
+    'Costume Color' => 'Gray'
+  },
+  {
+    'ID #' => 2,
+    'First Name' => 'Tony',
+    'Last Name' => 'Stark',
+    'Costume ID #' => 6,
+    'Costume Name' => 'Mark IV',
+    'Costume Color' => 'Red'
+  },
+  {
+    'ID #' => 2,
+    'First Name' => 'Tony',
+    'Last Name' => 'Stark',
+    'Costume ID #' => 7,
+    'Costume Name' => 'Mark VI',
+    'Costume Color' => 'Nano-Blue'
+  }
+]
+
+mapper  = ::Hashematics.mapper(config: config, rows: rows)
+objects = mapper.data(:avengers)
+```
+
+The `objects` variable should now look like:
+
+```ruby
+[
+  {
+    id: 1,
+    first: 'Bruce',
+    last: 'Banner',
+    costumes: [
+      { id: 3, name: 'Basic Hulk', color: 'Green' },
+      { id: 4, name: 'Mad Hulk', color: 'Red' }
+    ]
+  },
+  {
+    id: 2,
+    first: 'Tony',
+    last: 'Stark',
+    costumes: [
+      { id: 5, name: 'Mark I', color: 'Gray' },
+      { id: 6, name: 'Mark IV', color: 'Red' },
+      { id: 7, name: 'Mark VI', color: 'Nano-Blue' }
+    ]
+  }
+]
+```
+
+Shaping / grouping is recursive and should support richer breadth as well as depth graphs.
+
+### Multiple Top-Level Graphs
+
+You are not limited to just one top-level graph.  For example, we could expand on the previous example to include another grouping of costumes:
+
+```ruby
+config = {
+  types: {
+    person: {
+      properties: {
+        id: 'ID #',
+        first: 'First Name',
+        last: 'Last Name'
+      }
+    },
+    costume: {
+      properties: {
+        id: 'Costume ID #',
+        name: 'Costume Name',
+        color: 'Costume Color'
+      }
+    }
+  },
+  groups: {
+    avengers: {
+      by: 'ID #',
+      type: :person,
+      groups: {
+        costumes: {
+          by: 'Costume ID #',
+          type: :costume
+        }
+      }
+    },
+    costumes: {
+      by: 'Costume ID #',
+      type: :costume
+    }
+  }
+}
+
+rows = [
+  {
+    'ID #' => 1,
+    'First Name' => 'Bruce',
+    'Last Name' => 'Banner',
+    'Costume ID #' => 3,
+    'Costume Name' => 'Basic Hulk',
+    'Costume Color' => 'Green'
+  },
+  {
+    'ID #' => 1,
+    'First Name' => 'Bruce',
+    'Last Name' => 'Banner',
+    'Costume ID #' => 4,
+    'Costume Name' => 'Mad Hulk',
+    'Costume Color' => 'Red'
+  },
+  {
+    'ID #' => 2,
+    'First Name' => 'Tony',
+    'Last Name' => 'Stark',
+    'Costume ID #' => 5,
+    'Costume Name' => 'Mark I',
+    'Costume Color' => 'Gray'
+  },
+  {
+    'ID #' => 2,
+    'First Name' => 'Tony',
+    'Last Name' => 'Stark',
+    'Costume ID #' => 6,
+    'Costume Name' => 'Mark IV',
+    'Costume Color' => 'Red'
+  },
+  {
+    'ID #' => 2,
+    'First Name' => 'Tony',
+    'Last Name' => 'Stark',
+    'Costume ID #' => 7,
+    'Costume Name' => 'Mark VI',
+    'Costume Color' => 'Nano-Blue'
+  }
+]
+
+mapper  = ::Hashematics.mapper(config: config, rows: rows)
+objects = mapper.data(:costumes)
+```
+
+The `objects` variable should now look like:
+
+```ruby
+[
+  { id: 3, name: 'Basic Hulk', color: 'Green' },
+  { id: 4, name: 'Mad Hulk', color: 'Red' },
+  { id: 5, name: 'Mark I', color: 'Gray' },
+  { id: 6, name: 'Mark IV', color: 'Red' },
+  { id: 7, name: 'Mark VI', color: 'Nano-Blue' }
+]
+```
+
+### Advanced Options
+
+Some other options available are:
+
+* Custom Object Types: `object_class` attribute for a type defaults to Hash but can be set as a class constant or a proc/lambda.  If it is a class constant, then a new instance will be initialized from the incoming Hash.  If it is a function then it will be called with the incoming hash passed in and expecting an object as a return.
+* Compoound Unique Identifiers: `by` can either be a string, symbol, or array.
 
 ## Contributing
 
