@@ -14,6 +14,10 @@ module Hashematics
     extend Forwardable
 
     class << self
+      # This class-level method allows for the caching/memoization of Key objects already
+      # allocated.  Since Key objects will have such a high instantiation count with
+      # the potential of a lof of re-use, it makes sense to try to be a bit more
+      # memory-optimized here.
       def get(parts = [])
         return parts if parts.is_a?(self)
 
@@ -32,7 +36,7 @@ module Hashematics
 
     private_constant :SEPARATOR
 
-    def_delegators :parts, :each_with_object, :map
+    def_delegators :parts, :each_with_object, :map, :any?
 
     attr_reader :parts, :value
 

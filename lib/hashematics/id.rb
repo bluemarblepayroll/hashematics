@@ -13,7 +13,9 @@ module Hashematics
   # consume lots of memory.  To limit this, we digest it.
   class Id < Key
     class << self
+      # This method is class-level to expose the underlying hashing algorithm used.
       def digest(val = '')
+        # MD5 was chosen for its speed, it was not chosen for security.
         Digest::MD5.hexdigest(val)
       end
     end

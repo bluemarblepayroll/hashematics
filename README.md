@@ -379,6 +379,227 @@ The `objects` variable should now look like:
 ]
 ```
 
+### Handling Blanks
+
+Records with blank ID's are ignored by default.  This is due to the flat nature of the incoming data.  Take the following example:
+
+ID # | First Name | Last Name | Costume ID # | Costume Name | Costume Color
+---- | ---------- | --------- | ------------ | ------------ | -------------
+1    | Bruce      | Banner    | 3            | Basic Hulk   | Green
+2    | Tony       | Stark     |              |              |
+     |            |           | 4            | Undercover   | Purple
+
+This is interpreted as:
+
+* Bruce Banner is an avenger and has 2 costumes
+* Tony Stark is an avenger but has no costumes
+* An undercover purple costume exists, but belongs to no avenger
+
+We could read this in while ignoring blank IDs (default):
+
+```ruby
+config = {
+  types: {
+    person: {
+      properties: {
+        id: 'ID #',
+        first: 'First Name',
+        last: 'Last Name'
+      }
+    },
+    costume: {
+      properties: {
+        id: 'Costume ID #',
+        name: 'Costume Name',
+        color: 'Costume Color'
+      }
+    }
+  },
+  groups: {
+    avengers: {
+      by: 'ID #',
+      type: :person,
+      groups: {
+        costumes: {
+          by: 'Costume ID #',
+          type: :costume
+        }
+      }
+    },
+    costumes: {
+      by: 'Costume ID #',
+      type: :costume
+    }
+  }
+}
+
+rows = [
+  {
+    'ID #' => 1,
+    'First Name' => 'Bruce',
+    'Last Name' => 'Banner',
+    'Costume ID #' => 3,
+    'Costume Name' => 'Basic Hulk',
+    'Costume Color' => 'Green'
+  },
+  {
+    'ID #' => 2,
+    'First Name' => 'Tony',
+    'Last Name' => 'Stark',
+    'Costume ID #' => '',
+    'Costume Name' => '',
+    'Costume Color' => ''
+  },
+  {
+    'Costume ID #' => 4,
+    'Costume Name' => 'Undercover',
+    'Costume Color' => 'Purple'
+  }
+]
+
+mapper   = ::Hashematics.mapper(config: config, rows: rows)
+avengers = mapper.data(:avengers)
+costumes = mapper.data(:costumes)
+```
+
+The `avengers` variable should now look like:
+
+```ruby
+[
+  {
+    id: 1,
+    first: 'Bruce',
+    last: 'Banner',
+    costumes: [
+      { id: 3, name: 'Basic Hulk', color: 'Green' }
+    ]
+  },
+  {
+    id: 2,
+    first: 'Tony',
+    last: 'Stark',
+    costumes: []
+  }
+]
+```
+
+The `costumes` variable should now look like:
+
+```ruby
+[
+  { id: 3, name: 'Basic Hulk', color: 'Green' },
+  { id: 4, name: 'Undercover', color: 'Purple' }
+]
+```
+
+If you wish to include blank objects, then pass in ```include_blank: true``` option into the group configuration:
+
+```ruby
+config = {
+  types: {
+    person: {
+      properties: {
+        id: 'ID #',
+        first: 'First Name',
+        last: 'Last Name'
+      }
+    },
+    costume: {
+      properties: {
+        id: 'Costume ID #',
+        name: 'Costume Name',
+        color: 'Costume Color'
+      }
+    }
+  },
+  groups: {
+    avengers: {
+      by: 'ID #',
+      include_blank: true,
+      type: :person,
+      groups: {
+        costumes: {
+          by: 'Costume ID #',
+          type: :costume
+        }
+      }
+    },
+    costumes: {
+      by: 'Costume ID #',
+      include_blank: true,
+      type: :costume
+    }
+  }
+}
+
+rows = [
+  {
+    'ID #' => 1,
+    'First Name' => 'Bruce',
+    'Last Name' => 'Banner',
+    'Costume ID #' => 3,
+    'Costume Name' => 'Basic Hulk',
+    'Costume Color' => 'Green'
+  },
+  {
+    'ID #' => 2,
+    'First Name' => 'Tony',
+    'Last Name' => 'Stark',
+    'Costume ID #' => '',
+    'Costume Name' => '',
+    'Costume Color' => ''
+  },
+  {
+    'Costume ID #' => 4,
+    'Costume Name' => 'Undercover',
+    'Costume Color' => 'Purple'
+  }
+]
+
+mapper   = ::Hashematics.mapper(config: config, rows: rows)
+avengers = mapper.data(:avengers)
+costumes = mapper.data(:costumes)
+```
+
+The `avengers` variable should now look like:
+
+```ruby
+[
+  {
+    id: 1,
+    first: 'Bruce',
+    last: 'Banner',
+    costumes: [
+      { id: 3, name: 'Basic Hulk', color: 'Green' }
+    ]
+  },
+  {
+    id: 2,
+    first: 'Tony',
+    last: 'Stark',
+    costumes: []
+  },
+  {
+    id: nil,
+    first: nil,
+    last: nil,
+    costumes: [
+      { id: 4, name: 'Undercover', color: 'Purple' }
+    ]
+  }
+]
+```
+
+The `costumes` variable should now look like:
+
+```ruby
+[
+  { id: 3, name: 'Basic Hulk', color: 'Green' },
+  { id: '', name: '', color: '' },
+  { id: 4, name: 'Undercover', color: 'Purple' }
+]
+```
+
 ### Advanced Options
 
 Some other options available are:

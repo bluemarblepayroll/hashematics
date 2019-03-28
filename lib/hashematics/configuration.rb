@@ -12,12 +12,13 @@ module Hashematics
   # See test fixtures for examples.
   class Configuration
     module Keys
-      BY            = :by
-      GROUPS        = :groups
-      OBJECT_CLASS  = :object_class
-      PROPERTIES    = :properties
-      TYPE          = :type
-      TYPES         = :types
+      BY                = :by
+      GROUPS            = :groups
+      INCLUDE_BLANK     = :include_blank
+      OBJECT_CLASS      = :object_class
+      PROPERTIES        = :properties
+      TYPE              = :type
+      TYPES             = :types
     end
     include Keys
 
@@ -49,13 +50,23 @@ module Hashematics
       (group_config || {}).map do |name, options|
         id_key_parts = make_id_key_parts(options)
 
+        category = Category.new(
+          id_key: id_key_parts,
+          include_blank: include_blank(options),
+          parent_key: parent_key_parts
+        )
+
         Group.new(
-          category: Category.new(parent_key: parent_key_parts, id_key: id_key_parts),
+          category: category,
           children: make_children(options, parent_key_parts + id_key_parts),
           name: name,
           type: make_type(options)
         )
       end
+    end
+
+    def include_blank(options)
+      options.is_a?(Hash) ? config_value(options, INCLUDE_BLANK) : false
     end
 
     def make_id_key_parts(options)

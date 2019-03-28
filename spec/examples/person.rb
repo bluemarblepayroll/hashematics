@@ -8,7 +8,7 @@
 #
 
 class Person
-  attr_accessor :id, :first, :last, :smoker, :dob
+  attr_accessor :dob, :first, :id, :last, :smoker
 
   def initialize(attrs = {})
     attrs.each do |k, v|

@@ -12,13 +12,16 @@ module Hashematics
   # 1. list of top-level objects
   # 2. list of top-level objects cross-referenced by a parent.
   class Category
-    attr_reader :id_key, :parent_key
+    attr_reader :id_key, :include_blank, :parent_key
 
-    def initialize(parent_key: nil, id_key: nil)
-      @parent_key         = Key.get(parent_key)
-      @id_key             = Key.get(id_key)
-      @lookup             = {}
+    def initialize(id_key:, include_blank: false, parent_key: nil)
+      raise ArgumentError, 'id_key is required' unless id_key
+
       @default_parent_id  = Id.default
+      @id_key             = Key.get(id_key)
+      @include_blank      = include_blank || false
+      @lookup             = {}
+      @parent_key         = Key.get(parent_key)
 
       freeze
     end
@@ -30,6 +33,8 @@ module Hashematics
     end
 
     def add(record)
+      return self if skip_record?(record)
+
       set(
         record.id(parent_key),
         record.id(id_key),
@@ -40,6 +45,14 @@ module Hashematics
     private
 
     attr_reader :default_parent_id, :lookup
+
+    def skip_record?(record)
+      !include_record?(record)
+    end
+
+    def include_record?(record)
+      include_blank || record.id?(id_key)
+    end
 
     def get(parent_id)
       lookup[parent_id] ||= {}

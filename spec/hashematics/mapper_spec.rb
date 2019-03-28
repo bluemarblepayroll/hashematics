@@ -377,5 +377,196 @@ describe ::Hashematics::Mapper do
 
       expect(objects).to eq(expected)
     end
+
+    specify 'Handling Blanks (skip - default) should work' do
+      config = {
+        types: {
+          person: {
+            properties: {
+              id: 'ID #',
+              first: 'First Name',
+              last: 'Last Name'
+            }
+          },
+          costume: {
+            properties: {
+              id: 'Costume ID #',
+              name: 'Costume Name',
+              color: 'Costume Color'
+            }
+          }
+        },
+        groups: {
+          avengers: {
+            by: 'ID #',
+            type: :person,
+            groups: {
+              costumes: {
+                by: 'Costume ID #',
+                type: :costume
+              }
+            }
+          },
+          costumes: {
+            by: 'Costume ID #',
+            type: :costume
+          }
+        }
+      }
+
+      rows = [
+        {
+          'ID #' => 1,
+          'First Name' => 'Bruce',
+          'Last Name' => 'Banner',
+          'Costume ID #' => 3,
+          'Costume Name' => 'Basic Hulk',
+          'Costume Color' => 'Green'
+        },
+        {
+          'ID #' => 2,
+          'First Name' => 'Tony',
+          'Last Name' => 'Stark',
+          'Costume ID #' => '',
+          'Costume Name' => '',
+          'Costume Color' => ''
+        },
+        {
+          'Costume ID #' => 4,
+          'Costume Name' => 'Undercover',
+          'Costume Color' => 'Purple'
+        }
+      ]
+
+      mapper   = ::Hashematics.mapper(config: config, rows: rows)
+      avengers = mapper.data(:avengers)
+      costumes = mapper.data(:costumes)
+
+      expected_avengers = [
+        {
+          id: 1,
+          first: 'Bruce',
+          last: 'Banner',
+          costumes: [
+            { id: 3, name: 'Basic Hulk', color: 'Green' }
+          ]
+        },
+        {
+          id: 2,
+          first: 'Tony',
+          last: 'Stark',
+          costumes: []
+        }
+      ]
+
+      expected_costumes = [
+        { id: 3, name: 'Basic Hulk', color: 'Green' },
+        { id: 4, name: 'Undercover', color: 'Purple' }
+      ]
+
+      expect(avengers).to eq(expected_avengers)
+      expect(costumes).to eq(expected_costumes)
+    end
+
+    specify 'Handling Blanks (include) should work' do
+      config = {
+        types: {
+          person: {
+            properties: {
+              id: 'ID #',
+              first: 'First Name',
+              last: 'Last Name'
+            }
+          },
+          costume: {
+            properties: {
+              id: 'Costume ID #',
+              name: 'Costume Name',
+              color: 'Costume Color'
+            }
+          }
+        },
+        groups: {
+          avengers: {
+            by: 'ID #',
+            include_blank: true,
+            type: :person,
+            groups: {
+              costumes: {
+                by: 'Costume ID #',
+                type: :costume
+              }
+            }
+          },
+          costumes: {
+            by: 'Costume ID #',
+            include_blank: true,
+            type: :costume
+          }
+        }
+      }
+
+      rows = [
+        {
+          'ID #' => 1,
+          'First Name' => 'Bruce',
+          'Last Name' => 'Banner',
+          'Costume ID #' => 3,
+          'Costume Name' => 'Basic Hulk',
+          'Costume Color' => 'Green'
+        },
+        {
+          'ID #' => 2,
+          'First Name' => 'Tony',
+          'Last Name' => 'Stark',
+          'Costume ID #' => '',
+          'Costume Name' => '',
+          'Costume Color' => ''
+        },
+        {
+          'Costume ID #' => 4,
+          'Costume Name' => 'Undercover',
+          'Costume Color' => 'Purple'
+        }
+      ]
+
+      mapper   = ::Hashematics.mapper(config: config, rows: rows)
+      avengers = mapper.data(:avengers)
+      costumes = mapper.data(:costumes)
+
+      expected_avengers = [
+        {
+          id: 1,
+          first: 'Bruce',
+          last: 'Banner',
+          costumes: [
+            { id: 3, name: 'Basic Hulk', color: 'Green' }
+          ]
+        },
+        {
+          id: 2,
+          first: 'Tony',
+          last: 'Stark',
+          costumes: []
+        },
+        {
+          id: nil,
+          first: nil,
+          last: nil,
+          costumes: [
+            { id: 4, name: 'Undercover', color: 'Purple' }
+          ]
+        }
+      ]
+
+      expected_costumes = [
+        { id: 3, name: 'Basic Hulk', color: 'Green' },
+        { id: '', name: '', color: '' },
+        { id: 4, name: 'Undercover', color: 'Purple' }
+      ]
+
+      expect(avengers).to eq(expected_avengers)
+      expect(costumes).to eq(expected_costumes)
+    end
   end
 end

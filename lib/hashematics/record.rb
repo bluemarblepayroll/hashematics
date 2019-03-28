@@ -23,6 +23,10 @@ module Hashematics
       freeze
     end
 
+    def id?(key)
+      Key.get(key).any? { |p| data[p].to_s.length.positive? }
+    end
+
     def id(key)
       Id.get(id_parts(key))
     end

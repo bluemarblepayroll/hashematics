@@ -68,9 +68,7 @@
     make: Audi
     model: A1
     year: '2012'
-    plates:
-    - id: '16'
-      number: AUDIO230
+    plates: []
   houses:
   - id: '10'
     st1: 4500 Century Ave.
