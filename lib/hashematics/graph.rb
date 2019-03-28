@@ -8,12 +8,12 @@
 #
 
 module Hashematics
-  # Mapper serves as the main point of entry for this system.
+  # Graph serves as the main point of entry for this system.
   # Basic use:
-  # 1. Initialize a Mapper by passing in an array of groups (tree structures)
-  # 2. Feed in objects into the mapper using the #add method
+  # 1. Initialize a Graph by passing in an array of groups (tree structures)
+  # 2. Feed in objects into the graph using the #add method
   # 3. Use the #groups, #records, and #objects methods to interact with the generated object graph.
-  class Mapper
+  class Graph
     extend Forwardable
 
     attr_reader :group_dictionary, :record_set

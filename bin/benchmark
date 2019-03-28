@@ -122,13 +122,13 @@ end
 puts 'Loading prerequisites'
 configuration = yaml_read(config_file_name)
 groups = ::Hashematics::Configuration.new(configuration).groups
-mapper = ::Hashematics::Mapper.new(groups)
+graph = ::Hashematics::Graph.new(groups)
 
 puts 'Loading data'
 rows = csv_read(file_name)
 
 puts "Executing benchmark for #{rows.length} rows"
 Benchmark.bm do |x|
-  x.report('ADD')   { mapper.add(rows) }
-  x.report('DATA')  { mapper.data('people') }
+  x.report('ADD')   { graph.add(rows) }
+  x.report('DATA')  { graph.data('people') }
 end

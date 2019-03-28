@@ -14,10 +14,10 @@ require 'ostruct'
 require_relative 'category'
 require_relative 'configuration'
 require_relative 'dictionary'
+require_relative 'graph'
 require_relative 'group'
 require_relative 'key'
 require_relative 'id'
-require_relative 'mapper'
 require_relative 'object_interface'
 require_relative 'record'
 require_relative 'record_set'
@@ -27,10 +27,10 @@ require_relative 'visitor'
 # Top-level API syntactic sugar that holds the common library use(s).
 module Hashematics
   class << self
-    def mapper(config: {}, rows: [])
+    def graph(config: {}, rows: [])
       groups = ::Hashematics::Configuration.new(config).groups
 
-      ::Hashematics::Mapper.new(groups).add(rows)
+      ::Hashematics::Graph.new(groups).add(rows)
     end
   end
 end

@@ -45,8 +45,8 @@ rows = [
   }
 ]
 
-mapper  = ::Hashematics.mapper(rows: rows)
-objects = mapper.rows
+graph  = ::Hashematics.graph(rows: rows)
+objects = graph.rows
 ```
 
 The variable `objects` will now contain the same data as `rows`.  This, so far, is not very useful but it sets up base case.
@@ -83,8 +83,8 @@ rows = [
   }
 ]
 
-mapper  = ::Hashematics.mapper(config: config, rows: rows)
-objects = mapper.data(:avengers)
+graph  = ::Hashematics.graph(config: config, rows: rows)
+objects = graph.data(:avengers)
 ```
 
 Notice how we are grouping the data and calling the #data API.  Now the `objects` variable should now look like:
@@ -137,8 +137,8 @@ rows = [
   }
 ]
 
-mapper  = ::Hashematics.mapper(config: config, rows: rows)
-objects = mapper.data(:avengers)
+graph  = ::Hashematics.graph(config: config, rows: rows)
+objects = graph.data(:avengers)
 ```
 
 The `objects` variable should now look like:
@@ -248,8 +248,8 @@ rows = [
   }
 ]
 
-mapper  = ::Hashematics.mapper(config: config, rows: rows)
-objects = mapper.data(:avengers)
+graph  = ::Hashematics.graph(config: config, rows: rows)
+objects = graph.data(:avengers)
 ```
 
 The `objects` variable should now look like:
@@ -363,8 +363,8 @@ rows = [
   }
 ]
 
-mapper  = ::Hashematics.mapper(config: config, rows: rows)
-objects = mapper.data(:costumes)
+graph  = ::Hashematics.graph(config: config, rows: rows)
+objects = graph.data(:costumes)
 ```
 
 The `objects` variable should now look like:
@@ -457,9 +457,9 @@ rows = [
   }
 ]
 
-mapper   = ::Hashematics.mapper(config: config, rows: rows)
-avengers = mapper.data(:avengers)
-costumes = mapper.data(:costumes)
+graph   = ::Hashematics.graph(config: config, rows: rows)
+avengers = graph.data(:avengers)
+costumes = graph.data(:costumes)
 ```
 
 The `avengers` variable should now look like:
@@ -556,9 +556,9 @@ rows = [
   }
 ]
 
-mapper   = ::Hashematics.mapper(config: config, rows: rows)
-avengers = mapper.data(:avengers)
-costumes = mapper.data(:costumes)
+graph   = ::Hashematics.graph(config: config, rows: rows)
+avengers = graph.data(:avengers)
+costumes = graph.data(:costumes)
 ```
 
 The `avengers` variable should now look like:

@@ -9,7 +9,7 @@
 
 require 'spec_helper'
 
-describe ::Hashematics::Mapper do
+describe ::Hashematics::Graph do
   let(:csv_rows) { csv_fixture('data.csv') }
 
   let(:configuration) { yaml_fixture('config.yml') }
@@ -20,9 +20,9 @@ describe ::Hashematics::Mapper do
 
   describe '#children' do
     it 'returns list of child group names' do
-      mapper = ::Hashematics::Mapper.new(groups).add(csv_rows)
+      graph = ::Hashematics::Graph.new(groups).add(csv_rows)
 
-      actual_children = mapper.children
+      actual_children = graph.children
 
       expected_children = groups.map(&:name)
 
@@ -33,9 +33,9 @@ describe ::Hashematics::Mapper do
   describe '#data' do
     context 'with no object_class specifications' do
       it 'should parse configuration and return object graph' do
-        mapper = ::Hashematics::Mapper.new(groups).add(csv_rows)
+        graph = ::Hashematics::Graph.new(groups).add(csv_rows)
 
-        actual_people = mapper.data('people')
+        actual_people = graph.data('people')
 
         # binding.pry
 
@@ -59,9 +59,9 @@ describe ::Hashematics::Mapper do
       end
 
       it 'should parse configuration and return object graph' do
-        mapper = ::Hashematics::Mapper.new(modified_groups).add(csv_rows)
+        graph = ::Hashematics::Graph.new(modified_groups).add(csv_rows)
 
-        actual_people = mapper.data(:people)
+        actual_people = graph.data(:people)
 
         expect(actual_people).to eq(modified_people)
       end
@@ -83,8 +83,8 @@ describe ::Hashematics::Mapper do
         }
       ]
 
-      mapper  = ::Hashematics.mapper(rows: rows)
-      objects = mapper.rows
+      graph = ::Hashematics.graph(rows: rows)
+      objects = graph.rows
 
       expect(objects).to eq(rows)
     end
@@ -117,8 +117,8 @@ describe ::Hashematics::Mapper do
         }
       ]
 
-      mapper  = ::Hashematics.mapper(config: config, rows: rows)
-      objects = mapper.data(:avengers)
+      graph = ::Hashematics.graph(config: config, rows: rows)
+      objects = graph.data(:avengers)
 
       expected = [
         {
@@ -165,8 +165,8 @@ describe ::Hashematics::Mapper do
         }
       ]
 
-      mapper  = ::Hashematics.mapper(config: config, rows: rows)
-      objects = mapper.data(:avengers)
+      graph   = ::Hashematics.graph(config: config, rows: rows)
+      objects = graph.data(:avengers)
 
       expected = [
         {
@@ -257,8 +257,8 @@ describe ::Hashematics::Mapper do
         }
       ]
 
-      mapper  = ::Hashematics.mapper(config: config, rows: rows)
-      objects = mapper.data(:avengers)
+      graph   = ::Hashematics.graph(config: config, rows: rows)
+      objects = graph.data(:avengers)
 
       expected = [
         {
@@ -364,8 +364,8 @@ describe ::Hashematics::Mapper do
         }
       ]
 
-      mapper  = ::Hashematics.mapper(config: config, rows: rows)
-      objects = mapper.data(:costumes)
+      graph   = ::Hashematics.graph(config: config, rows: rows)
+      objects = graph.data(:costumes)
 
       expected = [
         { id: 3, name: 'Basic Hulk', color: 'Green' },
@@ -438,9 +438,9 @@ describe ::Hashematics::Mapper do
         }
       ]
 
-      mapper   = ::Hashematics.mapper(config: config, rows: rows)
-      avengers = mapper.data(:avengers)
-      costumes = mapper.data(:costumes)
+      graph    = ::Hashematics.graph(config: config, rows: rows)
+      avengers = graph.data(:avengers)
+      costumes = graph.data(:costumes)
 
       expected_avengers = [
         {
@@ -530,9 +530,9 @@ describe ::Hashematics::Mapper do
         }
       ]
 
-      mapper   = ::Hashematics.mapper(config: config, rows: rows)
-      avengers = mapper.data(:avengers)
-      costumes = mapper.data(:costumes)
+      graph    = ::Hashematics.graph(config: config, rows: rows)
+      avengers = graph.data(:avengers)
+      costumes = graph.data(:costumes)
 
       expected_avengers = [
         {
