@@ -14,7 +14,7 @@ describe ::Hashematics::Record do
 
   describe '#category_id' do
     it 'returns correct ID for specified keys' do
-      records = csv_rows.map { |row| ::Hashematics::Record.new(row) }
+      records = csv_rows.map { |row| described_class.new(row) }
 
       keys = [
         'ID #',
@@ -25,13 +25,25 @@ describe ::Hashematics::Record do
       keys.each do |key|
         records.each do |record|
           concat_only = key.map { |p| "#{p}::#{record[p]}" }.join('::')
-          expected_id = ::Hashematics::Id.digest(concat_only)
+          expected_id_value = ::Hashematics::Id.digest(concat_only)
 
-          actual_id = record.id(key)
+          actual_id_value = record.id(key).value
 
-          expect(actual_id).to eq(expected_id)
+          expect(actual_id_value).to eq(expected_id_value)
         end
       end
+    end
+  end
+
+  describe '#eql?' do
+    it 'should compare Record objects' do
+      expect(described_class.new(id: 1)).to eq(described_class.new(id: 1))
+      expect(described_class.new(id: 1)).not_to eq(described_class.new(id: '1'))
+    end
+
+    it 'should compare Record to Hash objects' do
+      expect(described_class.new(id: 1)).to eq(id: 1)
+      expect(described_class.new(id: 1)).not_to eq(id: '1')
     end
   end
 end

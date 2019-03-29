@@ -35,8 +35,13 @@ module Hashematics
       ObjectInterface.get(data, key)
     end
 
+    # This should allow for Record objects to be compared to:
+    # - Other Record objects
+    # - Other data payload objects (most likely Hash objects)
     def eql?(other)
-      data == other.is_a?(self.class) ? other.data : self.class.new(other).data
+      return eql?(self.class.new(other)) unless other.is_a?(self.class)
+
+      data == other.data
     end
 
     def ==(other)

@@ -24,7 +24,7 @@ module Hashematics
     def initialize(name: '', properties: nil, object_class: nil)
       @name         = name
       @properties   = make_properties(properties)
-      @object_class = object_class || 'hash'
+      @object_class = object_class || HASH_VALUE
 
       freeze
     end

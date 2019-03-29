@@ -12,7 +12,7 @@ require 'spec_helper'
 describe ::Hashematics::RecordSet do
   let(:csv_rows) { csv_fixture('data.csv') }
 
-  let(:record_set) { ::Hashematics::RecordSet.new }
+  let(:record_set) { described_class.new }
 
   subject { record_set }
 

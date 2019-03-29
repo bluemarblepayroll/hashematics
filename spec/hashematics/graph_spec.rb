@@ -20,7 +20,7 @@ describe ::Hashematics::Graph do
 
   describe '#children' do
     it 'returns list of child group names' do
-      graph = ::Hashematics::Graph.new(groups).add(csv_rows)
+      graph = described_class.new(groups).add(csv_rows)
 
       actual_children = graph.children
 
@@ -33,7 +33,7 @@ describe ::Hashematics::Graph do
   describe '#data' do
     context 'with no object_class specifications' do
       it 'should parse configuration and return object graph' do
-        graph = ::Hashematics::Graph.new(groups).add(csv_rows)
+        graph = described_class.new(groups).add(csv_rows)
 
         actual_people = graph.data('people')
 
@@ -59,7 +59,7 @@ describe ::Hashematics::Graph do
       end
 
       it 'should parse configuration and return object graph' do
-        graph = ::Hashematics::Graph.new(modified_groups).add(csv_rows)
+        graph = described_class.new(modified_groups).add(csv_rows)
 
         actual_people = graph.data(:people)
 

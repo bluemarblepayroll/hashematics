@@ -25,7 +25,7 @@ describe ::Hashematics::Type do
   context 'when input is an object' do
     context 'with no properties and object does not respond to keys' do
       specify '#convert makes blank object' do
-        type = ::Hashematics::Type.new
+        type = described_class.new
 
         actual = type.convert(person)
 
@@ -37,7 +37,7 @@ describe ::Hashematics::Type do
   context 'when input is a hash' do
     context 'with no properties but object responds to keys' do
       specify '#convert makes object' do
-        type = ::Hashematics::Type.new
+        type = described_class.new
 
         actual = type.convert(input)
 
@@ -64,7 +64,7 @@ describe ::Hashematics::Type do
         end
 
         specify '#convert makes object' do
-          type = ::Hashematics::Type.new(properties: properties, object_class: object_class)
+          type = described_class.new(properties: properties, object_class: object_class)
 
           actual = type.convert(input)
 
@@ -74,7 +74,7 @@ describe ::Hashematics::Type do
 
       context 'with class object_class' do
         specify '#convert makes object' do
-          type = ::Hashematics::Type.new(properties: properties, object_class: Person)
+          type = described_class.new(properties: properties, object_class: Person)
 
           actual = type.convert(input)
 
@@ -92,7 +92,7 @@ describe ::Hashematics::Type do
         end
 
         specify '#convert makes object' do
-          type = ::Hashematics::Type.new(properties: properties)
+          type = described_class.new(properties: properties)
 
           actual = type.convert(input)
 

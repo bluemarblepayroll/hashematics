@@ -52,7 +52,7 @@ module Hashematics
 
         category = Category.new(
           id_key: id_key_parts,
-          include_blank: include_blank(options),
+          include_blank: include_blank?(options),
           parent_key: parent_key_parts
         )
 
@@ -65,7 +65,7 @@ module Hashematics
       end
     end
 
-    def include_blank(options)
+    def include_blank?(options)
       options.is_a?(Hash) ? config_value(options, INCLUDE_BLANK) : false
     end
 

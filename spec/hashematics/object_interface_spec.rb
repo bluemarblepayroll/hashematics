@@ -21,22 +21,22 @@ describe ::Hashematics::ObjectInterface do
   let(:person) { Person.new(input) }
 
   it 'should read hash indifferently' do
-    expect(::Hashematics::ObjectInterface.get(input, :id)).to eq(input[:id])
-    expect(::Hashematics::ObjectInterface.get(input, 'id')).to eq(input[:id])
-    expect(::Hashematics::ObjectInterface.get(input, :first)).to eq(input['first'])
-    expect(::Hashematics::ObjectInterface.get(input, 'first')).to eq(input['first'])
+    expect(described_class.get(input, :id)).to eq(input[:id])
+    expect(described_class.get(input, 'id')).to eq(input[:id])
+    expect(described_class.get(input, :first)).to eq(input['first'])
+    expect(described_class.get(input, 'first')).to eq(input['first'])
 
-    expect(::Hashematics::ObjectInterface.get(person, 'doesnt_exist')).to eq(nil)
-    expect(::Hashematics::ObjectInterface.get(person, :doesnt_exist)).to eq(nil)
+    expect(described_class.get(person, 'doesnt_exist')).to eq(nil)
+    expect(described_class.get(person, :doesnt_exist)).to eq(nil)
   end
 
   it 'should read object if object is responsive' do
-    expect(::Hashematics::ObjectInterface.get(person, :id)).to eq(input[:id])
-    expect(::Hashematics::ObjectInterface.get(person, 'id')).to eq(input[:id])
-    expect(::Hashematics::ObjectInterface.get(person, :first)).to eq(input['first'])
-    expect(::Hashematics::ObjectInterface.get(person, 'first')).to eq(input['first'])
+    expect(described_class.get(person, :id)).to eq(input[:id])
+    expect(described_class.get(person, 'id')).to eq(input[:id])
+    expect(described_class.get(person, :first)).to eq(input['first'])
+    expect(described_class.get(person, 'first')).to eq(input['first'])
 
-    expect(::Hashematics::ObjectInterface.get(person, 'doesnt_exist')).to eq(nil)
-    expect(::Hashematics::ObjectInterface.get(person, :doesnt_exist)).to eq(nil)
+    expect(described_class.get(person, 'doesnt_exist')).to eq(nil)
+    expect(described_class.get(person, :doesnt_exist)).to eq(nil)
   end
 end

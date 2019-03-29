@@ -47,8 +47,16 @@ module Hashematics
       freeze
     end
 
+    # We can compare a Key object to a non-Key object since its constructor is rather pliable.
+    # This means we can do things like this:
+    # - Key.make(['id', :name]) == ['id', 'name']
+    # - Key.make(:id) == 'id'
+    # - Key.make(['id']) == :id
+    # Those are all equivalent and should return true.
     def eql?(other)
-      value == other.is_a?(self.class) ? other.value : self.class.new(other).value
+      return eql?(self.class.get(other)) unless other.is_a?(self.class)
+
+      value == other.value
     end
 
     def ==(other)

@@ -13,13 +13,13 @@ describe ::Hashematics::Category do
   let(:csv_rows) { csv_fixture('data.csv') }
 
   it 'should require an id_key' do
-    expect { ::Hashematics::Category.new(id_key: nil) }.to raise_error ArgumentError
+    expect { described_class.new(id_key: nil) }.to raise_error ArgumentError
   end
 
   describe '#add' do
     context 'with id key but no parent key' do
       specify '#records should return last unique rows as records' do
-        category = ::Hashematics::Category.new(id_key: 'ID #')
+        category = described_class.new(id_key: 'ID #')
 
         csv_rows.each do |csv_row|
           record = ::Hashematics::Record.new(csv_row)
@@ -38,7 +38,7 @@ describe ::Hashematics::Category do
 
     context 'with parent and id keys' do
       specify '#records should return unique rows as records specific to a parent' do
-        category = ::Hashematics::Category.new(
+        category = described_class.new(
           parent_key: 'ID #',
           id_key: 'Car ID #'
         )
