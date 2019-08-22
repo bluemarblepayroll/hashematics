@@ -49,7 +49,7 @@ graph  = ::Hashematics.graph(rows: rows)
 objects = graph.rows
 ```
 
-The variable `objects` will now contain the same data as `rows`.  This, so far, is not very useful but it sets up base case.
+The variable `objects` will now contain the same data as `rows`.  This, so far, is not very useful but it sets up the base case.
 
 ### Introduction to Simple Shaping
 
