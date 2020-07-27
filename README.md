@@ -393,7 +393,7 @@ ID #   | First Name | Last Name | Costume ID # | Costume Name | Costume Color
 
 This is interpreted as:
 
-* Bruce Banner is an avenger and has 2 costumes
+* Bruce Banner is an avenger and has one costume
 * Tony Stark is an avenger but has no costumes
 * An undercover purple costume exists, but belongs to no avenger
 
